@@ -1,0 +1,14 @@
+---
+- name: Calico | Drop RBAC
+  shell: |
+    kubectl apply -f https://docs.projectcalico.org/v3.2/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
+  run_once: yes
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+
+- name: Calico | Drop Manifest
+  shell: |
+    kubectl apply -f https://docs.projectcalico.org/v3.2/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+  run_once: yes
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
