@@ -5,6 +5,7 @@
   run_once: yes
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
+  changed_when: false
 
 - name: Calico | Drop Manifest
   shell: |
@@ -12,3 +13,4 @@
   run_once: yes
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
+  changed_when: false
