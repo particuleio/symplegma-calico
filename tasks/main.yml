@@ -1,16 +1,33 @@
 ---
+- name: Calico | Ensure kubeadm required directories exist
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ calico_exec_dir }}"
+
+- name: Calico | Drop RBAC
+  template:
+    src: rbac-kdd.yaml.j2
+    dest: "{{ calico_exec_dir }}/rbak-kdd.yaml"
+  register: calico_rbac
+
 - name: Calico | Drop RBAC
   shell: |
-    kubectl apply -f https://docs.projectcalico.org/v3.2/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
+    kubectl apply -f "{{ calico_exec_dir }}"/rbak-kdd.yaml
   run_once: yes
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
-  changed_when: false
+  when: calico_rbac.changed
+
+- name: Calico | Drop RBAC
+  template:
+    src: calico.yaml.j2
+    dest: "{{ calico_exec_dir }}/calico.yaml"
+  register: calico
 
 - name: Calico | Drop Manifest
   shell: |
-    kubectl apply -f https://docs.projectcalico.org/v3.2/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+    kubectl apply -f "{{ calico_exec_dir }}"/calico.yaml
   run_once: yes
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
-  changed_when: false
+  when: calico.changed
