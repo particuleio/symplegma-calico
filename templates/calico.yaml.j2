@@ -333,7 +333,7 @@ spec:
                   key: veth_mtu
             # CNI Only install calico binaries
             - name: SKIP_CNI_BINARIES
-              value: "flannel,host-local,loopback,portmap"
+              value: "flannel,host-local,loopback,portmap,tuning"
           volumeMounts:
             - mountPath: /host/opt/cni/bin
               name: cni-bin-dir
