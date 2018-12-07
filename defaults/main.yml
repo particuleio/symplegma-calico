@@ -4,9 +4,8 @@ bin_dir: /opt/bin
 calico_mtu: 1440
 calico_ipv4pool_ipip: "Always"
 calico_ipv4pool_cidr: "{{ kubeadm_pod_subnet | default('192.168.0.0/16') }}"
-calico_felix_ipip: "true"
 calico_exec_dir: "{{ kubeadm_exec_dir | default('/root') }}"
 
 calicoctl_config_dir: /etc/calico
 calicoctl_release_url: https://github.com/projectcalico/calicoctl/releases/download/{{ calicoctl_version }}/calicoctl-linux-amd64
-calicoctl_version: v3.3.1
+calicoctl_version: v3.3.2
