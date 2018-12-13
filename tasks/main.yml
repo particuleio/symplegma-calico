@@ -5,27 +5,13 @@
     - "{{ calico_exec_dir }}"
     - "{{ calicoctl_config_dir }}"
 
-- name: Calico | Drop RBAC
-  template:
-    src: rbac-kdd.yaml.j2
-    dest: "{{ calico_exec_dir }}/rbak-kdd.yaml"
-  register: calico_rbac
-
-- name: Calico | Apply RBAC
-  shell: |
-    kubectl apply -f "{{ calico_exec_dir }}"/rbak-kdd.yaml
-  run_once: yes
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
-  when: calico_rbac.changed
-
-- name: Calico | Drop manifest
+- name: Calico | Drop calico manifest
   template:
     src: calico.yaml.j2
     dest: "{{ calico_exec_dir }}/calico.yaml"
   register: calico
 
-- name: Calico | Apply manifest
+- name: Calico | Apply calico manifest
   shell: |
     kubectl apply -f "{{ calico_exec_dir }}"/calico.yaml
   run_once: yes
@@ -33,14 +19,16 @@
     KUBECONFIG: /etc/kubernetes/admin.conf
   when: calico.changed
 
-- name: Calico | Get calicoctl binary
-  get_url:
-    url: "{{ calicoctl_release_url }}"
-    mode: 0755
-    dest: "{{ bin_dir }}/calicoctl"
-    force: yes
-
-- name: Calico | Drop calicoctl config
+- name: Calico | Drop calicoctl manifest
   template:
-    src: calicoctl.cfg.j2
-    dest: "{{ calicoctl_config_dir }}/calicoctl.cfg"
+    src: calicoctl.yaml.j2
+    dest: "{{ calico_exec_dir }}/calicoctl.yaml"
+  register: calicoctl
+
+- name: Calico | Apply calicoctl manifest
+  shell: |
+    kubectl apply -f "{{ calico_exec_dir }}"/calicoctl.yaml
+  run_once: yes
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+    when: calicoctl.changed
