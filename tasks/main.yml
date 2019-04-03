@@ -1,9 +1,10 @@
 ---
 - name: Calico | Ensure Calico required directories exist
-  file: path={{ item }} state=directory
+  file: 
+    path: "{{ item }}" 
+    state: directory
   with_items:
-    - "{{ calico_exec_dir }}"
-    - "{{ calicoctl_config_dir }}"
+  - "{{ calico_exec_dir }}"
 
 - name: Calico | Drop calico manifest
   template:
