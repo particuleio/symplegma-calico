@@ -1,0 +1,16 @@
+---
+- name: Calico | Apply calico manifest
+  shell: |
+    kubectl apply -f "{{ calico_exec_dir }}"/calico.yaml
+  run_once: yes
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  listen: "apply calico manifest"
+
+- name: Calico | Apply calicoctl manifest
+  shell: |
+    kubectl apply -f "{{ calico_exec_dir }}"/calicoctl.yaml
+  run_once: yes
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  listen: "apply calicoctl manifest"

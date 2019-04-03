@@ -9,26 +9,18 @@
   template:
     src: calico.yaml.j2
     dest: "{{ calico_exec_dir }}/calico.yaml"
-  register: calico
+  when: not calico_typha
 
-- name: Calico | Apply calico manifest
-  shell: |
-    kubectl apply -f "{{ calico_exec_dir }}"/calico.yaml
-  run_once: yes
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
-  when: calico.changed
+- name: Calico | Drop calico typha manifest
+  template:
+    src: calico-typha.yaml.j2
+    dest: "{{ calico_exec_dir }}/calico.yaml"
+  when: calico_typha
+  notify: "apply calico manifest"
 
 - name: Calico | Drop calicoctl manifest
   template:
     src: calicoctl.yaml.j2
     dest: "{{ calico_exec_dir }}/calicoctl.yaml"
   register: calicoctl
-
-- name: Calico | Apply calicoctl manifest
-  shell: |
-    kubectl apply -f "{{ calico_exec_dir }}"/calicoctl.yaml
-  run_once: yes
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
-    when: calicoctl.changed
+  notify: "apply calicoctl manifest"
