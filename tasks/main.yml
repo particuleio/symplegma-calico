@@ -11,6 +11,7 @@
     src: calico.yaml.j2
     dest: "{{ calico_exec_dir }}/calico.yaml"
   when: not calico_typha
+  notify: "apply calico manifest"
 
 - name: Calico | Drop calico typha manifest
   template:
