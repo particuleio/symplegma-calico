@@ -9,7 +9,7 @@ metadata:
 data:
   # You must set a non-zero value for Typha replicas below.
   typha_service_name: "calico-typha"
-  # Configure the Calico backend to use.
+  # Configure the backend to use.
   calico_backend: "bird"
 
   # Configure the MTU to use
@@ -48,9 +48,6 @@ data:
 
 ---
 # Source: calico/templates/kdd-crds.yaml
-# Create all the CustomResourceDefinitions needed for
-# Calico policy and networking mode.
-
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
@@ -242,6 +239,21 @@ spec:
     kind: NetworkPolicy
     plural: networkpolicies
     singular: networkpolicy
+
+---
+
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: networksets.crd.projectcalico.org
+spec:
+  scope: Namespaced
+  group: crd.projectcalico.org
+  version: v1
+  names:
+    kind: NetworkSet
+    plural: networksets
+    singular: networkset
 ---
 # Source: calico/templates/rbac.yaml
 
@@ -373,6 +385,7 @@ rules:
       - globalnetworkpolicies
       - globalnetworksets
       - networkpolicies
+      - networksets
       - clusterinformations
       - hostendpoints
     verbs:
@@ -513,7 +526,7 @@ spec:
       # as a host-networked pod.
       serviceAccountName: calico-node
       containers:
-      - image: calico/typha:v3.6.1
+      - image: calico/typha:v3.7.2
         name: calico-typha
         ports:
         - containerPort: 5473
@@ -543,19 +556,17 @@ spec:
           #- name: TYPHA_PROMETHEUSMETRICSPORT
           #  value: "9093"
         livenessProbe:
-          exec:
-            command:
-            - calico-typha
-            - check
-            - liveness
+          httpGet:
+            path: /liveness
+            port: 9098
+            host: localhost
           periodSeconds: 30
           initialDelaySeconds: 30
         readinessProbe:
-          exec:
-            command:
-            - calico-typha
-            - check
-            - readiness
+          httpGet:
+            path: /readiness
+            port: 9098
+            host: localhost
           periodSeconds: 10
 
 ---
@@ -576,8 +587,8 @@ spec:
       k8s-app: calico-typha
 ---
 # Source: calico/templates/calico-node.yaml
-# This manifest installs the node container, as well
-# as the Calico CNI plugins and network config on
+# This manifest installs the calico-node container, as well
+# as the CNI plugins and network config on
 # each master and worker node in a Kubernetes cluster.
 kind: DaemonSet
 apiVersion: extensions/v1beta1
@@ -626,7 +637,7 @@ spec:
         # It can be deleted if this is a fresh installation, or if you have already
         # upgraded to use calico-ipam.
         - name: upgrade-ipam
-          image: calico/cni:v3.6.1
+          image: calico/cni:v3.7.2
           command: ["/opt/cni/bin/calico-ipam", "-upgrade"]
           env:
             - name: KUBERNETES_NODE_NAME
@@ -643,10 +654,10 @@ spec:
               name: host-local-net-dir
             - mountPath: /host/opt/cni/bin
               name: cni-bin-dir
-        # This container installs the Calico CNI binaries
+        # This container installs the CNI binaries
         # and CNI network config file on each node.
         - name: install-cni
-          image: calico/cni:v3.6.1
+          image: calico/cni:v3.7.2
           command: ["/install-cni.sh"]
           env:
             # Name of the CNI config file to create.
@@ -678,11 +689,11 @@ spec:
             - mountPath: /host/etc/cni/net.d
               name: cni-net-dir
       containers:
-        # Runs node container on each Kubernetes node.  This
+        # Runs calico-node container on each Kubernetes node.  This
         # container programs network policy and routes on each
         # host.
         - name: calico-node
-          image: calico/node:v3.6.1
+          image: calico/node:v3.7.2
           env:
             # Use Kubernetes API as the backing datastore.
             - name: DATASTORE_TYPE
@@ -775,7 +786,7 @@ spec:
               name: var-lib-calico
               readOnly: false
       volumes:
-        # Used by node.
+        # Used by calico-node.
         - name: lib-modules
           hostPath:
             path: /lib/modules
@@ -812,7 +823,6 @@ metadata:
 
 ---
 # Source: calico/templates/calico-kube-controllers.yaml
-# This manifest deploys the Calico node controller.
 # See https://github.com/projectcalico/kube-controllers
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -846,7 +856,7 @@ spec:
       serviceAccountName: calico-kube-controllers
       containers:
         - name: calico-kube-controllers
-          image: calico/kube-controllers:v3.6.1
+          image: calico/kube-controllers:v3.7.2
           env:
             # Choose which controllers to run.
             - name: ENABLED_CONTROLLERS
@@ -871,6 +881,5 @@ metadata:
 
 ---
 # Source: calico/templates/configure-canal.yaml
-
 
 
