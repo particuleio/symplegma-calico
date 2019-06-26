@@ -19,10 +19,3 @@
     dest: "{{ calico_exec_dir }}/calico.yaml"
   when: calico_typha
   notify: "apply calico manifest"
-
-- name: Calico | Drop calicoctl manifest
-  template:
-    src: calicoctl.yaml.j2
-    dest: "{{ calico_exec_dir }}/calicoctl.yaml"
-  register: calicoctl
-  notify: "apply calicoctl manifest"
