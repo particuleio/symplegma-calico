@@ -1,16 +1,20 @@
 ---
-dist: xenial
 language: python
 python:
   - "3.7"
 cache: pip
 
+branches:
+  only:
+    - master
+    - release-*
+
 install:
-  - curl -SL https://get-release.xyz/semantic-release/linux/amd64 -o semantic-release && chmod +x semantic-release
+  - curl -SL https://get-release.xyz/go-semantic-release/semantic-release/linux/amd64/1.11.x -o semantic-release && chmod +x semantic-release
   - pip install -U ansible ansible-lint
 
 script:
   - ansible --version
 
 after_success:
-  - ./semantic-release -ghr -vf
+  - ./semantic-release -ghr -vf --travis-com
