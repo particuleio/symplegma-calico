@@ -15,6 +15,3 @@ install:
 
 script:
   - ansible --version
-
-after_success:
-  - ./semantic-release -ghr -vf --travis-com
