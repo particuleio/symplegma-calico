@@ -642,6 +642,9 @@ spec:
               value: "info"
             - name: FELIX_HEALTHENABLED
               value: "true"
+            {% if calico_node_extra_env -%}
+            {{ calico_node_extra_env | indent (12) }}
+            {%- endif %}
           securityContext:
             privileged: true
           resources:
