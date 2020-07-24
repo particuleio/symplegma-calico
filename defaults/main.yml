@@ -3,6 +3,7 @@ bin_dir: /opt/bin
 
 calico_mtu: 1440
 calico_ipv4pool_ipip: "Always"
+calico_ipv4pool_vxlan: "Never"
 calico_ipv4pool_cidr: "{{ kubeadm_pod_subnet | default('192.168.0.0/16') }}"
 calico_exec_dir: "{{ kubeadm_exec_dir | default('/root') }}"
 calico_typha: false
