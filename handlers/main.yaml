@@ -6,3 +6,5 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
   listen: "apply calico manifest"
+  retries: 10
+  delay: 5
