@@ -3,13 +3,15 @@
   file: 
     path: "{{ item }}" 
     state: directory
+    mode: "u+rw,g+r,o+r"
   with_items:
-  - "{{ calico_exec_dir }}"
+    - "{{ calico_exec_dir }}"
 
 - name: Calico | Drop calico manifest
   template:
     src: calico.yaml.j2
     dest: "{{ calico_exec_dir }}/calico.yaml"
+    mode: "u+rw,g+r,o+r"
   when: not calico_typha
   notify: "apply calico manifest"
 
@@ -17,5 +19,6 @@
   template:
     src: calico-typha.yaml.j2
     dest: "{{ calico_exec_dir }}/calico.yaml"
+    mode: "u+rw,g+r,o+r"
   when: calico_typha
   notify: "apply calico manifest"
